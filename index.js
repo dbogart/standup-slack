@@ -32,10 +32,14 @@ app.post('/', function(req, res) {
           console.log('query error', err);
           res.send('There was an error with your request :(');
         } else {
-          console.log(result);
+          if (result.rowCount > 0) {
+            // TODO: Format message and send to Slack
+            console.log(result.rows[0].token);
+            res.end();
+          } else {
+            res.send('Authorize this app by visiting: https://slack.com/oauth/authorize/?client_id=' + process.env.CLIENT_ID);
+          }
         }
-
-        res.end();
       });
     });
   });
