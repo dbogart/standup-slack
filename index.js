@@ -26,7 +26,7 @@ app.post('/', function(req, res) {
         res.send('There was an error with your request :(');
       }
 
-      client.query('SELECT * FROM users WHERE id = "' + userId + '"', function(err, result) {
+      client.query("SELECT * FROM users WHERE id = '" + userId + "'", function(err, result) {
         done();
         if (err) {
           console.log('query error', err);
