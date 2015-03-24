@@ -8,6 +8,7 @@
   "dependencies": {
     "express": "^4.12.3",
     "formidable": "^1.0.17",
+    "pg": "^4.3.0",
     "request": "^2.53.0"
   }
 }
