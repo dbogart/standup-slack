@@ -5,7 +5,7 @@
 var formidable = require('formidable');
 var request = require('request');
 var pg = require('pg');
-var formatter = require('./formatters/defaultFormatter');
+var formatter = require('../formatters/defaultFormatter.js');
 
 var postMessageToSlack = function(token, channel, message, callback) {
   var body = {
