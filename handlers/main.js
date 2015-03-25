@@ -1,6 +1,7 @@
 var formidable = require('formidable');
 var request = require('request');
 var pg = require('pg');
+var formatter = require('./formatters/defaultFormatter');
 
 var postMessageToSlack = function(token, channel, message, callback) {
   var body = {
@@ -21,19 +22,6 @@ var postMessageToSlack = function(token, channel, message, callback) {
       }
     }
   });
-};
-
-var formatStandupMessage = function(text) {
-  var standupMessage = '_*Standup*_\n';
-  var parsedText = JSON.parse(text);
-  var keys = Object.keys(parsedText);
-  keys.forEach(function (key, index) {
-    standupMessage += '> *' + key + '*: ' + parsedText[key];
-    if (index < keys.length-1) {
-      standupMessage += '\n';
-    }
-  });
-  return standupMessage;
 };
 
 var checkIfUserRegistered = function(userId, callback) {
@@ -85,7 +73,7 @@ exports.post = function(req, res) {
       if (user) {
         // User exists!
         var text = fields.text;
-        var standupMessage = formatStandupMessage(text);
+        var standupMessage = formatter.format(text);
         console.log('Formatted standup message: ', standupMessage);
         if (standupMessage) {
           console.log('Posting standup message to Slack...');
