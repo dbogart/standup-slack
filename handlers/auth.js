@@ -13,7 +13,7 @@ exports.get = function(req, res) {
     "client_id": process.env.CLIENT_ID,
     "client_secret": process.env.CLIENT_SECRET,
     "code": code,
-    "redirect_uri": "https://intense-gorge-7336.herokuapp.com/auth"
+    "redirect_uri": process.env.REDIRECT_URI
   };
 
   request.post('https://slack.com/api/oauth.access', {form: body}, function(err, r, body) {
