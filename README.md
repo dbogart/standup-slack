@@ -13,6 +13,9 @@ And it will be automatically formatted into something like:
 
 ![](http://i.imgur.com/71KRNuz.png)
 
+# Usage
+Since the app requires user authorization, you must authorize the app before using it. Do this by running the `/standup` Slack command without arguments. Slack will reply with a URL that you can visit in order to authorize the app.
+
 # Requirements
  - **Heroku**: This project was made to run on Heroku, although if you do not like Heroku, it shouldn't be too hard to run it elsewhere.
  - **Postgres**: Postgres is used to store user IDs and user access tokens. This is so the app can post messages as the authenticated user.
