@@ -1,9 +1,9 @@
 {
-  "name": "everseat-standup-slack",
+  "name": "standup-slack",
   "version": "0.0.1",
-  "description": "Slack message formatter for standups in Everseat",
+  "description": "Slack message formatter for standup messages",
   "main": "index.js",
-  "author": "alexfu@everseat.com",
+  "author": "Alex Fu <alexfu@everseat.com>",
   "license": "MIT",
   "dependencies": {
     "express": "^4.12.3",
