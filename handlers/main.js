@@ -1,45 +1,99 @@
 var formidable = require('formidable');
+var request = require('request');
 var pg = require('pg');
+
+var postMessageToSlack = function(token, channel, message, callback) {
+  var body = {
+    "token": token,
+    "channel": channel,
+    "text": message
+  };
+  request.post({url: 'https://slack.com/api/chat.postMessage', form: body}, function(err, resp, body) {
+    if (err) {
+      callback(err, null);
+    } else {
+      callback(null, resp);
+    }
+  });
+};
+
+var formatStandupMessage = function(text) {
+  var standupMessage = '_*Standup*_\n';
+  var parsedText = JSON.parse(text);
+  var keys = Object.keys(parsedText);
+  keys.forEach(function (key, index) {
+    standupMessage += '> ' + key + ': ' + parsedText[key];
+    if (index < keys.length-1) {
+      standupMessage += '\n';
+    }
+  });
+  return standupMessage;
+};
+
+var checkIfUserRegistered = function(userId, callback) {
+  pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+    if (err) {
+      done();
+      client.end();
+      callback(err, null);
+      return;
+    }
+
+    client.query("SELECT * FROM users WHERE id = $1", [userId], function(err, result) {
+      done();
+      client.end();
+
+      if (err) {
+        callback(err, null);
+      } else {
+        var userExists = result.rowCount > 0;
+        if (userExists) {
+          callback(null, result.rows[0]);
+        } else {
+          callback(null, null);
+        }
+      }
+    });
+  });
+};
 
 exports.post = function(req, res) {
   var form = new formidable.IncomingForm();
   form.parse(req, function(err, fields) {
     if (err) {
       console.log('failed to parse request');
-      res.send('There was an error with your request :(');
-    } else {
-      console.log('parsed request', fields);
+      res.statu(400).send('What a bad request *tsk* *tsk*...');
+      return;
     }
 
+    console.log('parsed request', fields);
+
     // Check if user is already registered
-    var userId = fields.user_id;
-    pg.connect(process.env.DATABASE_URL, function(err, client, done) {
+    checkIfUserRegistered(fields.user_id, function(err, user) {
       if (err) {
-        console.log('postgres connection error', err);
-        res.send('There was an error with your request :(');
-        done();
-        client.end();
+        console.log('Error checking if user is registered', err);
+        res.status(500).end();
         return;
       }
 
-      client.query("SELECT * FROM users WHERE id = '" + userId + "'", function(err, result) {
-        done();
-        client.end();
-
-        if (err) {
-          console.log('query error', err);
-          res.send('There was an error with your request :(');
-        } else {
-          if (result.rowCount > 0) {
-            // TODO: Format message and send to Slack
-            console.log(result.rows[0].token);
+      if (user) {
+        // User exists!
+        var text = fields.text;
+        var standupMessage = formatStandupMessage(text);
+        console.log('Formatted standup message: ', standupMessage);
+        if (standupMessage) {
+          console.log('Posting standup message to Slack...');
+          postMessageToSlack(user.token, fields.channel_id, standupMessage, function(err, resp) {
             res.end();
-          } else {
-            var url = 'https://slack.com/oauth/authorize?client_id=' + process.env.CLIENT_ID;
-            res.send('Authorize this app by visiting: ' + url);
-          }
+          });
+        } else {
+          res.end();
         }
-      });
+      } else {
+        // User does not exist
+        var url = 'https://slack.com/oauth/authorize?client_id=' + process.env.CLIENT_ID;
+        res.send('Authorize this app by visiting: ' + url);
+      }
     });
   });
 };
