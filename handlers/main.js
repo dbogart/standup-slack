@@ -6,13 +6,19 @@ var postMessageToSlack = function(token, channel, message, callback) {
   var body = {
     "token": token,
     "channel": channel,
-    "text": message
+    "text": message,
+    "as_user": true
   };
   request.post({url: 'https://slack.com/api/chat.postMessage', form: body}, function(err, resp, body) {
     if (err) {
       callback(err, null);
     } else {
-      callback(null, resp);
+      var result = JSON.parse(body);
+      if (result.ok) {
+        callback(null, resp);
+      } else {
+        callback(result.error, null);
+      }
     }
   });
 };
@@ -84,14 +90,18 @@ exports.post = function(req, res) {
         if (standupMessage) {
           console.log('Posting standup message to Slack...');
           postMessageToSlack(user.token, fields.channel_id, standupMessage, function(err, resp) {
-            res.end();
+            if (err) {
+              res.send('Could not post message because of ' + err);
+            } else {
+              res.end();
+            }
           });
         } else {
           res.end();
         }
       } else {
         // User does not exist
-        var url = 'https://slack.com/oauth/authorize?client_id=' + process.env.CLIENT_ID;
+        var url = 'https://slack.com/oauth/authorize?scope=read,post,client&client_id=' + process.env.CLIENT_ID;
         res.send('Authorize this app by visiting: ' + url);
       }
     });
