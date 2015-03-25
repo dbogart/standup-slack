@@ -1,3 +1,9 @@
+/*
+ * Auth request handler. Currently only exports a GET handler.
+ * This handler will be triggered by the Slack OAuth flow when
+ * it is ready to obtain an access token.
+ */
+
 var request = require('request');
 var pg = require('pg');
 

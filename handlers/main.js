@@ -1,3 +1,7 @@
+/*
+ * Main request handler. Currently only exports a POST handler.
+ */
+
 var formidable = require('formidable');
 var request = require('request');
 var pg = require('pg');
