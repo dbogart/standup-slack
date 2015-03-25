@@ -1,5 +1,4 @@
 var formidable = require('formidable');
-var request = require('request');
 var pg = require('pg');
 
 exports.post = function(req, res) {
@@ -18,10 +17,15 @@ exports.post = function(req, res) {
       if (err) {
         console.log('postgres connection error', err);
         res.send('There was an error with your request :(');
+        done();
+        client.end();
+        return;
       }
 
       client.query("SELECT * FROM users WHERE id = '" + userId + "'", function(err, result) {
         done();
+        client.end();
+
         if (err) {
           console.log('query error', err);
           res.send('There was an error with your request :(');
