@@ -1,14 +1,15 @@
-var formidable = require('formidable');
+var request = require('request');
 
 exports.get = function(req, res) {
-  var form = new formidable.IncomingForm();
-  form.parse(req, function(err, fields) {
-    if (err) {
-      console.log('failed to parse request');
-      res.sendStatus(500);
-    } else {
-      console.log('parsed request', fields);
-      res.end();
-    }
+  var code = req.query.code;
+  var body = {
+    "client_id": process.env.CLIENT_ID,
+    "client_secret": process.env.CLIENT_SECRET,
+    "code": code,
+    "redirect_uri": "https://intense-gorge-7336.herokuapp.com/auth"
+  };
+  request.post('https://slack.com/api/oauth.access', {form: body}, function(err, r, body) {
+    console.log(body);
+    res.send('OK');
   });
 };
