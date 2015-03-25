@@ -28,7 +28,7 @@ var formatStandupMessage = function(text) {
   var parsedText = JSON.parse(text);
   var keys = Object.keys(parsedText);
   keys.forEach(function (key, index) {
-    standupMessage += '> ' + key + ': ' + parsedText[key];
+    standupMessage += '> *' + key + '*: ' + parsedText[key];
     if (index < keys.length-1) {
       standupMessage += '\n';
     }
