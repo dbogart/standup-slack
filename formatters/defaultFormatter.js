@@ -7,15 +7,23 @@
  * > *Today*: Nothing
  */
 
-exports.format = function(text) {
-  var standupMessage = '_*Standup*_\n';
-  var parsedText = JSON.parse(text);
-  var keys = Object.keys(parsedText);
-  keys.forEach(function (key, index) {
-    standupMessage += '> *' + key + '*: ' + parsedText[key];
+var S = require('string');
+
+var buildTemplate = function(json) {
+  var template = '_*Standup*_\n';
+  var keys = Object.keys(json);
+  keys.forEach(function(key, index) {
+    template += '> *' + key + '*: {{' + key + '}}';
     if (index < keys.length-1) {
-      standupMessage += '\n';
+      template += '\n';
     }
   });
-  return standupMessage;
+
+  return template;
+};
+
+exports.format = function(text) {
+  var parsedText = JSON.parse(text);
+  var standupMessage = buildTemplate(parsedText);
+  return S(standupMessage).template(parsedText).s;
 };
