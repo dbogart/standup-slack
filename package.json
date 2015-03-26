@@ -13,9 +13,10 @@
     "string": "^3.1.0"
   },
   "scripts": {
-    "test": "mocha"
+    "test": "./node_modules/mocha/bin/mocha"
   },
   "devDependencies": {
-    "chai": "^2.1.2"
+    "chai": "^2.1.2",
+    "mocha": "^2.2.1"
   }
 }
