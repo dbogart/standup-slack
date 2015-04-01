@@ -55,6 +55,19 @@ var checkIfUserRegistered = function(userId, callback) {
   });
 };
 
+var sendBadJsonResponse = function(req, res, text) {
+  var fileName = new Date().getTime() + '.json';
+  fs.writeFile('temp/' + fileName, text, function(err) {
+    if (err) {
+      console.log(err);
+      res.send("Oops, something went terribly wrong.");
+    } else {
+      var url = 'http://jsonformatter.curiousconcept.com/#https://' + req.headers.host + "/badjson?json=" + fileName;
+      res.send("Couldn't post your message. Please make sure it's valid: " + url);
+    }
+  });
+};
+
 var handleExistingUser = function(req, res, user, fields) {
   var text = fields.text;
   var standupMessage = formatter.format(text);
@@ -69,14 +82,18 @@ var handleExistingUser = function(req, res, user, fields) {
       }
     });
   } else {
-    var fileName = new Date().getTime() + '.json';
-    fs.writeFile('temp/' + fileName, text, function(err) {
-      if (err) {
-        console.log(err);
-        res.send("Oops, something went terribly wrong.");
+    fs.exists('temp/', function(exists) {
+      if (exists) {
+        sendBadJsonResponse(req, res, text);
       } else {
-        var url = 'http://jsonformatter.curiousconcept.com/#https://' + req.headers.host + "/badjson?json=" + fileName;
-        res.send("Couldn't post your message. Please make sure it's valid: " + url);
+        fs.mkdir('temp/', function(err) {
+          if (err) {
+            console.log(err);
+            res.send('Oops, something went terribly wrong.');
+          } else {
+            sendBadJsonResponse(req, res, text);
+          }
+        });
       }
     });
   }
