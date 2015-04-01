@@ -23,7 +23,12 @@ var buildTemplate = function(json) {
 };
 
 exports.format = function(text) {
-  var parsedText = JSON.parse(text);
-  var standupMessage = buildTemplate(parsedText);
-  return S(standupMessage).template(parsedText).s;
+  try {
+    var parsedText = JSON.parse(text);
+    var standupMessage = buildTemplate(parsedText);
+    return S(standupMessage).template(parsedText).s;
+  } catch (err) {
+    console.log('Error formatting standup message: ', err);
+    return null;
+  }
 };

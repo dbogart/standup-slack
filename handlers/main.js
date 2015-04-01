@@ -5,6 +5,7 @@
 var formidable = require('formidable');
 var request = require('request');
 var pg = require('pg');
+var fs = require('fs');
 var formatter = require('../formatters/defaultFormatter.js');
 
 var postMessageToSlack = function(token, channel, message, callback) {
@@ -32,7 +33,6 @@ var checkIfUserRegistered = function(userId, callback) {
   pg.connect(process.env.DATABASE_URL, function(err, client, done) {
     if (err) {
       done();
-      client.end();
       callback(err, null);
       return;
     }
@@ -89,7 +89,16 @@ exports.post = function(req, res) {
             }
           });
         } else {
-          res.end();
+          var fileName = new Date().getTime() + '.json';
+          fs.writeFile('temp/' + fileName, text, function(err) {
+            if (err) {
+              console.log(err);
+              res.send("Oops, something went terribly wrong.");
+            } else {
+              var url = 'http://jsonformatter.curiousconcept.com/#' + req.headers.host + "/badjson?json=" + fileName;
+              res.send("Couldn't post message. Please make sure it's valid: " + url);
+            }
+          });
         }
       } else {
         // User does not exist
