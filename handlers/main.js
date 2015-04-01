@@ -55,6 +55,38 @@ var checkIfUserRegistered = function(userId, callback) {
   });
 };
 
+var handleExistingUser = function(req, res, user, fields) {
+  var text = fields.text;
+  var standupMessage = formatter.format(text);
+  console.log('Formatted standup message: ', standupMessage);
+  if (standupMessage) {
+    console.log('Posting standup message to Slack...');
+    postMessageToSlack(user.token, fields.channel_id, standupMessage, function(err, resp) {
+      if (err) {
+        res.send('Could not post message because of ' + err);
+      } else {
+        res.end();
+      }
+    });
+  } else {
+    var fileName = new Date().getTime() + '.json';
+    fs.writeFile('temp/' + fileName, text, function(err) {
+      if (err) {
+        console.log(err);
+        res.send("Oops, something went terribly wrong.");
+      } else {
+        var url = 'http://jsonformatter.curiousconcept.com/#https://' + req.headers.host + "/badjson?json=" + fileName;
+        res.send("Couldn't post your message. Please make sure it's valid: " + url);
+      }
+    });
+  }
+};
+
+var handleNewUser = function(req, res) {
+  var url = 'https://slack.com/oauth/authorize?scope=read,post,client&client_id=' + process.env.CLIENT_ID;
+  res.send('Authorize this app by visiting: ' + url);
+};
+
 exports.post = function(req, res) {
   var form = new formidable.IncomingForm();
   form.parse(req, function(err, fields) {
@@ -75,35 +107,9 @@ exports.post = function(req, res) {
       }
 
       if (user) {
-        // User exists!
-        var text = fields.text;
-        var standupMessage = formatter.format(text);
-        console.log('Formatted standup message: ', standupMessage);
-        if (standupMessage) {
-          console.log('Posting standup message to Slack...');
-          postMessageToSlack(user.token, fields.channel_id, standupMessage, function(err, resp) {
-            if (err) {
-              res.send('Could not post message because of ' + err);
-            } else {
-              res.end();
-            }
-          });
-        } else {
-          var fileName = new Date().getTime() + '.json';
-          fs.writeFile('temp/' + fileName, text, function(err) {
-            if (err) {
-              console.log(err);
-              res.send("Oops, something went terribly wrong.");
-            } else {
-              var url = 'http://jsonformatter.curiousconcept.com/#https://' + req.headers.host + "/badjson?json=" + fileName;
-              res.send("Couldn't post your message. Please make sure it's valid: " + url);
-            }
-          });
-        }
+        handleExistingUser(req, res, user, fields);
       } else {
-        // User does not exist
-        var url = 'https://slack.com/oauth/authorize?scope=read,post,client&client_id=' + process.env.CLIENT_ID;
-        res.send('Authorize this app by visiting: ' + url);
+        handleNewUser(req, res);
       }
     });
   });
