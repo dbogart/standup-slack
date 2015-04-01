@@ -16,6 +16,14 @@ And it will be automatically formatted into something like:
 # Usage
 Since the app requires user authorization, you must authorize the app before using it. Do this by running the `/standup` Slack command without arguments. Slack will reply with a URL that you can visit in order to authorize the app.
 
+# Error Handling
+
+If you, by accident, send a standup message that isn't valid JSON, you'll get a response from Slackbot that looks like:
+
+![](http://i.imgur.com/6fH3jFw.png)
+
+You'll want to visit that URL to diagnose the invalid message. If you're wondering about the URL after the `#` sign, don't worry. That URL is only temporary and will **_expire as soon as it's accessed_**.
+
 # Requirements
  - **Heroku**: This project was made to run on Heroku, although if you do not like Heroku, it shouldn't be too hard to run it elsewhere.
  - **Postgres**: Postgres is used to store user IDs and user access tokens. This is so the app can post messages as the authenticated user.
