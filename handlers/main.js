@@ -95,8 +95,8 @@ exports.post = function(req, res) {
               console.log(err);
               res.send("Oops, something went terribly wrong.");
             } else {
-              var url = 'http://jsonformatter.curiousconcept.com/#' + req.headers.host + "/badjson?json=" + fileName;
-              res.send("Couldn't post message. Please make sure it's valid: " + url);
+              var url = 'http://jsonformatter.curiousconcept.com/#https://' + req.headers.host + "/badjson?json=" + fileName;
+              res.send("Couldn't post your message. Please make sure it's valid: " + url);
             }
           });
         }
