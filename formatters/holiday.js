@@ -5,7 +5,8 @@
 
 var S = require('string');
 var holidays = {
-  "12/25": ":christmas_tree:"
+  "12/25": ":christmas_tree:",
+  "10/31": ":ghost:"
 };
 
 var getDecoration = function(date) {

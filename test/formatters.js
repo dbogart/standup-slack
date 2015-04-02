@@ -29,5 +29,17 @@ describe('Formatter', function() {
       clock.restore();
     });
 
+    it('should decorate valid standup message on Halloween day', function() {
+      // Fake current time
+      var clock = sinon.useFakeTimers(new Date(2015, 9, 31).getTime());
+
+      var input = '{"Yesterday": "N/A", "Today": "N/A"}';
+      var expected = ':ghost:_*Standup*_:ghost:\n> *Yesterday*: N/A\n> *Today*: N/A';
+      expect(holidayFormatter.format(input)).to.equal(expected);
+
+      // Restore time
+      clock.restore();
+    });
+
   });
 });
